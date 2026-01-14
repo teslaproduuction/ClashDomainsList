@@ -1089,6 +1089,7 @@ payload:
   - '+.webcast16-normal-ycru.tiktokv.com'
   - '+.webcast16-ws-alisg.tiktokv.com'
   - '+.webcast22-ws-alisg.tiktokv.com'
+  - '+.wixmp.com'
   - '+.webhooks.patreon.com'
   - '+.whatis.snapchat.com'
   - '+.whoami.akamai.net'
