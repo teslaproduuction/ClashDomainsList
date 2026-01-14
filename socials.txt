@@ -1102,6 +1102,8 @@ payload:
   - '+.pixiv.net'
   - 'www.deviantart.com'
   - '+.deviantart.com'
+  - 'www.deviantart.net'
+  - '+.deviantart.net'
   - 'www.facebook.com.vn'
   - '+.facebook.com.vn'
   - 'www.fbcdn.net'
