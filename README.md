@@ -4,6 +4,8 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/teslaproduuction/ClashDomainsList)
 ![GitHub stars](https://img.shields.io/github/stars/teslaproduuction/ClashDomainsList?style=social)
 
+**[🇷🇺 Русский](README.md)** | **[🇬🇧 English](README_EN.md)**
+
 Коллекция доменных списков для Clash и совместимых прокси-клиентов. Удобная категоризация доменов для гибкой маршрутизации трафика.
 
 ---
