@@ -4,7 +4,7 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/teslaproduuction/ClashDomainsList)
 ![GitHub stars](https://img.shields.io/github/stars/teslaproduuction/ClashDomainsList?style=social)
 
-**[🇷🇺 Русский](README.md)** | **[🇬🇧 English](README_EN.md)**
+**[🇷🇺 Русский](README.md)** | **[us English](README_EN.md)**
 
 A collection of domain lists for Clash and compatible proxy clients. Convenient domain categorization for flexible traffic routing.
 
@@ -379,3 +379,4 @@ If this project was helpful, give it a ⭐ on GitHub!
 [⬆ Back to Top](#-clashdomainslist)
 
 </div>
+
