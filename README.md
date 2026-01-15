@@ -23,14 +23,14 @@
 
 | Категория | Описание | Доменов | Ссылка |
 |-----------|----------|---------|--------|
-| <img src="ai.svg" width="20" alt="AI"> **AI** | AI сервисы (ChatGPT, Claude, Midjourney и др.) | ~50 | [ai.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/ai.txt) |
-| <img src="discord.svg" width="20" alt="Discord"> **Discord** | Discord и связанные сервисы | ~3000 | [discord.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/discord.txt) |
-| <img src="music.svg" width="20" alt="Music"> **Music** | Музыкальные стриминговые сервисы | ~200 | [music.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt) |
-| <img src="porno.svg" width="20" alt="Porno"> **Porno** | Контент для взрослых | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
-| <img src="socials.svg" width="20" alt="Socials"> **Socials** | Социальные сети (Facebook, Instagram, Twitter и др.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
-| <img src="tools.svg" width="20" alt="Tools"> **Tools** | Онлайн инструменты и сервисы | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
-| <img src="torrent.svg" width="20" alt="Torrent"> **Torrent** | Торрент-трекеры и P2P сервисы | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
-| <img src="youtube.svg" width="20" alt="YouTube"> **YouTube** | YouTube и связанные Google сервисы | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
+| <img src="ai.svg" width="200" alt="AI"> **AI** | AI сервисы (ChatGPT, Claude, Midjourney и др.) | ~50 | [ai.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/ai.txt) |
+| <img src="discord.svg" width="200" alt="Discord"> **Discord** | Discord и связанные сервисы | ~3000 | [discord.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/discord.txt) |
+| <img src="music.svg" width="200" alt="Music"> **Music** | Музыкальные стриминговые сервисы | ~200 | [music.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt) |
+| <img src="porno.svg" width="200" alt="Porno"> **Porno** | Контент для взрослых | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
+| <img src="socials.svg" width="200" alt="Socials"> **Socials** | Социальные сети (Facebook, Instagram, Twitter и др.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
+| <img src="tools.svg" width="200" alt="Tools"> **Tools** | Онлайн инструменты и сервисы | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
+| <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Торрент-трекеры и P2P сервисы | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
+| <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube и связанные Google сервисы | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
 
 ---
 
