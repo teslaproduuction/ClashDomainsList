@@ -996,6 +996,7 @@ payload:
   - '+.support.tiktok.com'
   - '+.survey.snapchat.com'
   - '+.syndication.twitter.com'
+  - '+.thethirdverse.net'
   - '+.t.co'
   - '+.t.snapchat.com'
   - '+.tch960163.tch.quora.com'
