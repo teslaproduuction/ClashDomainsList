@@ -1374,6 +1374,7 @@ payload:
   - '+.snuba-admin.test-region.getsentry.net'
   - '+.snuba-admin.zendesk-eu.getsentry.net'
   - '+.snuba-dashboard.getsentry.net'
+  - '+.speedtest.net'
   - '+.spinnaker.getsentry.net'
   - '+.spocket-x6.sentry.io'
   - '+.sportsbrandsvpn.internal.trainingpeaks.com'
