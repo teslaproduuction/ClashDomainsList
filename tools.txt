@@ -1621,3 +1621,4 @@ payload:
   - '+.yearinreview.whoop.com'
   - '+.zapier-deployment.com'
   - '+.zapier.com'
+  - '+.du-lua.dev'
