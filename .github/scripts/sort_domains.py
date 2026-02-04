@@ -16,19 +16,48 @@ The script:
 - Preserves section headers (lines starting with #)
 - Sorts domain entries (lines starting with "- '") within each section alphabetically
 - Domain entries must be enclosed in single quotes
+
+Usage:
+    python3 sort_domains.py <file>               # Sort domains in place
+    python3 sort_domains.py --extract <file>     # Extract domains to stdout
 """
 
 import sys
 import re
 
 
+# Regex pattern to match domain entries: "  - 'domain'"
+DOMAIN_PATTERN = re.compile(r"\s*-\s*'([^']*)'")
+
+
+def extract_domain(line):
+    """Extract the domain value from a YAML list entry.
+    
+    Returns the domain string or None if the line doesn't match the pattern.
+    """
+    match = DOMAIN_PATTERN.match(line)
+    if match:
+        return match.group(1)
+    return None
+
+
 def extract_domain_for_sorting(line):
     """Extract the domain value from a YAML list entry for sorting purposes."""
-    # Match pattern: optional whitespace, -, whitespace, 'domain'
-    match = re.match(r"\s*-\s*'([^']*)'", line)
-    if match:
-        return match.group(1).lower()
+    domain = extract_domain(line)
+    if domain:
+        return domain.lower()
     return line.lower()
+
+
+def extract_all_domains(input_file):
+    """Extract all domains from a YAML payload file."""
+    domains = []
+    with open(input_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            domain = extract_domain(line)
+            if domain:
+                domains.append(domain)
+    return domains
 
 
 def sort_yaml_domains(input_file):
@@ -90,10 +119,31 @@ def sort_yaml_domains(input_file):
         f.write('\n'.join(result) + '\n')
 
 
+def print_usage():
+    """Print usage information."""
+    print(f"Usage: {sys.argv[0]} <file>")
+    print(f"       {sys.argv[0]} --extract <file>")
+    print()
+    print("Options:")
+    print("  <file>           Sort domains in the file in place")
+    print("  --extract <file> Extract domains from the file to stdout")
+
+
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <yaml_file>")
+    if len(sys.argv) < 2:
+        print_usage()
         sys.exit(1)
     
-    sort_yaml_domains(sys.argv[1])
-    print(f"Sorted: {sys.argv[1]}")
+    if sys.argv[1] == '--extract':
+        if len(sys.argv) != 3:
+            print_usage()
+            sys.exit(1)
+        domains = extract_all_domains(sys.argv[2])
+        for domain in domains:
+            print(domain)
+    else:
+        if len(sys.argv) != 2:
+            print_usage()
+            sys.exit(1)
+        sort_yaml_domains(sys.argv[1])
+        print(f"Sorted: {sys.argv[1]}")

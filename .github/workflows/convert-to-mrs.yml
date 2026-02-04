@@ -24,6 +24,12 @@ jobs:
         run: |
           # Get the latest alpha version
           VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
+          
+          if [ -z "$VERSION" ]; then
+            echo "Error: Failed to get mihomo version"
+            exit 1
+          fi
+          
           echo "Downloading mihomo version: $VERSION"
           
           # Download and extract mihomo
@@ -46,9 +52,9 @@ jobs:
               # Sort the file while preserving structure
               python3 .github/scripts/sort_domains.py "$txt_file"
               
-              # Create a text file for mihomo (extract domains only)
+              # Create a text file for mihomo (extract domains using Python script)
               mrs_input=$(mktemp)
-              grep -E "^\s*-\s*'" "$txt_file" | sed "s/.*'\([^']*\)'.*/\1/" > "$mrs_input"
+              python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input"
               
               # Check if we have domains to convert
               if [ ! -s "$mrs_input" ]; then
