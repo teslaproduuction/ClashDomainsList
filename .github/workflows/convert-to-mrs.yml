@@ -1,0 +1,103 @@
+name: Convert TXT to MRS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*.txt'
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download mihomo
+        run: |
+          # Get the latest alpha version
+          VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
+          
+          if [ -z "$VERSION" ]; then
+            echo "Error: Failed to fetch mihomo version from GitHub releases"
+            exit 1
+          fi
+          
+          echo "Downloading mihomo version: $VERSION"
+          
+          # Download and extract mihomo
+          curl -sL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
+          gzip -d mihomo.gz
+          chmod +x mihomo
+
+      - name: Sort and convert files
+        run: |
+          set -e  # Exit on error
+          
+          # Process each txt file
+          for txt_file in *.txt; do
+            if [ -f "$txt_file" ]; then
+              echo "Processing: $txt_file"
+              
+              # Get base name (without extension)
+              base_name="${txt_file%.txt}"
+              
+              # Sort the file while preserving structure
+              python3 .github/scripts/sort_domains.py "$txt_file"
+              
+              # Create a text file for mihomo (extract domains using Python script)
+              mrs_input=$(mktemp)
+              python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input"
+              
+              # Check if we have domains to convert
+              if [ ! -s "$mrs_input" ]; then
+                echo "Warning: No domains found in $txt_file"
+                rm -f "$mrs_input"
+                continue
+              fi
+              
+              # Convert to mrs format using mihomo
+              if ! ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs" 2>&1; then
+                echo "Error: Failed to convert $txt_file to mrs format"
+                echo "Input file content (first 10 lines):"
+                head -10 "$mrs_input"
+                rm -f "$mrs_input"
+                exit 1
+              fi
+              
+              # Verify the output file was created
+              if [ ! -f "${base_name}.mrs" ]; then
+                echo "Error: Output file ${base_name}.mrs was not created"
+                rm -f "$mrs_input"
+                exit 1
+              fi
+              
+              echo "Converted: $txt_file -> ${base_name}.mrs"
+              
+              # Clean up
+              rm -f "$mrs_input"
+            fi
+          done
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add all changes
+          git add *.txt *.mrs
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-sort domains and update .mrs files"
+            git push
+          fi
