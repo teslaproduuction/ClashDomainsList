@@ -60,6 +60,25 @@ def extract_all_domains(input_file):
     return domains
 
 
+def deduplicate_domains(domains):
+    """Remove duplicate domain entries (case-insensitive comparison).
+    
+    Returns a list of unique domain lines, preserving the first occurrence.
+    """
+    seen = set()
+    unique_domains = []
+    for line in domains:
+        domain = extract_domain(line)
+        if domain:
+            domain_lower = domain.lower()
+            if domain_lower not in seen:
+                seen.add(domain_lower)
+                unique_domains.append(line)
+        else:
+            unique_domains.append(line)
+    return unique_domains
+
+
 def sort_yaml_domains(input_file):
     """Sort domains in a YAML payload file while preserving structure."""
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -85,8 +104,9 @@ def sort_yaml_domains(input_file):
 
         # Check if it's a comment line (section header)
         if stripped.lstrip().startswith('#'):
-            # Sort and add previous section's domains
+            # Deduplicate first, then sort for better performance
             if current_domains:
+                current_domains = deduplicate_domains(current_domains)
                 current_domains.sort(key=extract_domain_for_sorting)
                 result.extend(current_domains)
                 current_domains = []
@@ -110,8 +130,9 @@ def sort_yaml_domains(input_file):
         # Other lines (shouldn't happen but keep them)
         result.append(stripped)
 
-    # Sort and add remaining domains
+    # Deduplicate first, then sort for better performance
     if current_domains:
+        current_domains = deduplicate_domains(current_domains)
         current_domains.sort(key=extract_domain_for_sorting)
         result.extend(current_domains)
 
