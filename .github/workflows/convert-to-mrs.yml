@@ -26,7 +26,7 @@ jobs:
           VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
           
           if [ -z "$VERSION" ]; then
-            echo "Error: Failed to get mihomo version"
+            echo "Error: Failed to fetch mihomo version from GitHub releases"
             exit 1
           fi
           
@@ -64,8 +64,10 @@ jobs:
               fi
               
               # Convert to mrs format using mihomo
-              if ! ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs"; then
+              if ! ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs" 2>&1; then
                 echo "Error: Failed to convert $txt_file to mrs format"
+                echo "Input file content (first 10 lines):"
+                head -10 "$mrs_input"
                 rm -f "$mrs_input"
                 exit 1
               fi
