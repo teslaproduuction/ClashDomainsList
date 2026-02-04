@@ -1,10 +1,34 @@
 #!/usr/bin/env python3
 """
 Sort domains in YAML payload files alphabetically.
-Preserves section headers (comments starting with #) and sorts domains within each section.
+
+Expected file format:
+    payload:
+      # Section header (optional comment)
+      - '+.domain1.com'
+      - '+.domain2.com'
+      
+      # Another section (optional)
+      - 'www.domain3.com'
+
+The script:
+- Preserves the 'payload:' header
+- Preserves section headers (lines starting with #)
+- Sorts domain entries (lines starting with "- '") within each section alphabetically
+- Domain entries must be enclosed in single quotes
 """
 
 import sys
+import re
+
+
+def extract_domain_for_sorting(line):
+    """Extract the domain value from a YAML list entry for sorting purposes."""
+    # Match pattern: optional whitespace, -, whitespace, 'domain'
+    match = re.match(r"\s*-\s*'([^']*)'", line)
+    if match:
+        return match.group(1).lower()
+    return line.lower()
 
 
 def sort_yaml_domains(input_file):
@@ -34,7 +58,7 @@ def sort_yaml_domains(input_file):
         if stripped.lstrip().startswith('#'):
             # Sort and add previous section's domains
             if current_domains:
-                current_domains.sort(key=lambda x: x.lower().strip("  - '"))
+                current_domains.sort(key=extract_domain_for_sorting)
                 result.extend(current_domains)
                 current_domains = []
 
@@ -59,7 +83,7 @@ def sort_yaml_domains(input_file):
 
     # Sort and add remaining domains
     if current_domains:
-        current_domains.sort(key=lambda x: x.lower().strip("  - '"))
+        current_domains.sort(key=extract_domain_for_sorting)
         result.extend(current_domains)
 
     with open(input_file, 'w', encoding='utf-8') as f:

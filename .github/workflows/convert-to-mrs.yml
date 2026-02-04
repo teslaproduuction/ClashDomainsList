@@ -33,6 +33,8 @@ jobs:
 
       - name: Sort and convert files
         run: |
+          set -e  # Exit on error
+          
           # Process each txt file
           for txt_file in *.txt; do
             if [ -f "$txt_file" ]; then
@@ -48,8 +50,26 @@ jobs:
               mrs_input=$(mktemp)
               grep -E "^\s*-\s*'" "$txt_file" | sed "s/.*'\([^']*\)'.*/\1/" > "$mrs_input"
               
+              # Check if we have domains to convert
+              if [ ! -s "$mrs_input" ]; then
+                echo "Warning: No domains found in $txt_file"
+                rm -f "$mrs_input"
+                continue
+              fi
+              
               # Convert to mrs format using mihomo
-              ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs"
+              if ! ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs"; then
+                echo "Error: Failed to convert $txt_file to mrs format"
+                rm -f "$mrs_input"
+                exit 1
+              fi
+              
+              # Verify the output file was created
+              if [ ! -f "${base_name}.mrs" ]; then
+                echo "Error: Output file ${base_name}.mrs was not created"
+                rm -f "$mrs_input"
+                exit 1
+              fi
               
               echo "Converted: $txt_file -> ${base_name}.mrs"
               
