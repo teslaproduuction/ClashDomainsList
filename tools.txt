@@ -202,6 +202,7 @@ payload:
   - '+.dremio.whoop.com'
   - '+.drive.a.sentry.io'
   - '+.dtrack.security.getsentry.net'
+  - '+.du-lua.dev'
   - '+.dual-a-0001.a-msedge.net'
   - '+.dynmap.fmhy.net'
   - '+.e-learning.naukri.com'
