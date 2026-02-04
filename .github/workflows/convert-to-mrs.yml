@@ -1,0 +1,75 @@
+name: Convert TXT to MRS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*.txt'
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download mihomo
+        run: |
+          # Get the latest alpha version
+          VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
+          echo "Downloading mihomo version: $VERSION"
+          
+          # Download and extract mihomo
+          curl -sL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
+          gzip -d mihomo.gz
+          chmod +x mihomo
+
+      - name: Sort and convert files
+        run: |
+          # Process each txt file
+          for txt_file in *.txt; do
+            if [ -f "$txt_file" ]; then
+              echo "Processing: $txt_file"
+              
+              # Get base name (without extension)
+              base_name="${txt_file%.txt}"
+              
+              # Sort the file while preserving structure
+              python3 .github/scripts/sort_domains.py "$txt_file"
+              
+              # Create a text file for mihomo (extract domains only)
+              mrs_input=$(mktemp)
+              grep -E "^\s*-\s*'" "$txt_file" | sed "s/.*'\([^']*\)'.*/\1/" > "$mrs_input"
+              
+              # Convert to mrs format using mihomo
+              ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs"
+              
+              echo "Converted: $txt_file -> ${base_name}.mrs"
+              
+              # Clean up
+              rm -f "$mrs_input"
+            fi
+          done
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add all changes
+          git add *.txt *.mrs
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-sort domains and update .mrs files"
+            git push
+          fi
