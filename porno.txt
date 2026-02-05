@@ -70,6 +70,7 @@ payload:
   - '+.ny.rule34.xxx'
   - '+.phncdn.com'
   - '+.phncdn.org'
+  - '+.phprcdn.com'
   - '+.plab.site'
   - '+.pornhub.com'
   - '+.pornhub.org'
@@ -127,4 +128,3 @@ payload:
   - 'www.xnxx.com'
   - 'www.xv-ru.com'
   - 'www.xvideos.com'
-  - '+.phprcdn.com'
