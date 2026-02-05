@@ -127,3 +127,4 @@ payload:
   - 'www.xnxx.com'
   - 'www.xv-ru.com'
   - 'www.xvideos.com'
+  - '+.phprcdn.com'
