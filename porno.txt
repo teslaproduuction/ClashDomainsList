@@ -113,6 +113,7 @@ payload:
   - '+.xnxx.com'
   - '+.xv-ru.com'
   - '+.xvideos.com'
+  - '+.xvideos-cdn.com'
   - 'www.beeg.com'
   - 'www.f95zone.to'
   - 'www.hqporner.com'
