@@ -42,3 +42,4 @@ payload:
   - '+.findAdiscord.com'
   - '+.mee6.xyz'
   - '+.top.gg'
+  - '+.yagpdb.xyz'
