@@ -33,6 +33,7 @@ A collection of domain lists for Clash and compatible proxy clients. Convenient 
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Online tools and services | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Torrent trackers and P2P services | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube and related Google services | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
+| **Processes** | Process name rules (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 
 ---
 
@@ -270,6 +271,81 @@ rules:
 
 ---
 
+## 🔧 Process Rules (mihomo / Clash Verge)
+
+The `processes.txt` file uses `behavior: classical` and contains `PROCESS-NAME` / `PROCESS-NAME-REGEX` rules for routing by application name.
+
+> **Important:** `.mrs` conversion is **not supported** for classical behavior. Use `format: text` or `format: yaml`.
+
+### Setup (all processes through one proxy)
+
+```yaml
+find-process-mode: always  # Required for PROCESS-NAME matching
+
+rule-providers:
+  processes:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt"
+    path: ./ruleset/processes.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,processes,PROXY
+  - MATCH,DIRECT
+```
+
+### Per-category routing
+
+For different proxy groups per application, add rules directly to `rules`:
+
+```yaml
+find-process-mode: always
+
+rules:
+  # Discord
+  - PROCESS-NAME-REGEX,(?i).*discord.*,PROXY Discord
+  - PROCESS-NAME,Update.exe,PROXY Discord
+
+  # AI
+  - PROCESS-NAME-REGEX,(?i).*claude.*,PROXY AI
+  - PROCESS-NAME-REGEX,(?i).*chatgpt.*,PROXY AI
+
+  # YouTube
+  - PROCESS-NAME-REGEX,(?i).*youtube.*,PROXY YouTube
+
+  # Socials
+  - PROCESS-NAME-REGEX,(?i).*twitter.*,PROXY Socials
+  - PROCESS-NAME-REGEX,(?i).*telegram.*,PROXY Socials
+  - PROCESS-NAME-REGEX,(?i).*instagram.*,PROXY Socials
+
+  # Music
+  - PROCESS-NAME-REGEX,(?i).*spotify.*,PROXY Music
+
+  # Torrent
+  - PROCESS-NAME-REGEX,(?i).*qbittorrent.*,PROXY Torrent
+  - PROCESS-NAME-REGEX,(?i).*transmission.*,PROXY Torrent
+
+  # Domain rules
+  - RULE-SET,youtube,PROXY YouTube
+  - RULE-SET,discord,PROXY Discord
+  - MATCH,DIRECT
+```
+
+### Platforms and process names
+
+| Platform | Process name format | Example |
+|----------|-------------------|---------|
+| Windows | `Name.exe` | `Discord.exe`, `Spotify.exe` |
+| macOS | `Name` | `Discord`, `Spotify` |
+| Linux | `name` | `discord`, `spotify` |
+| Android | `package.name` | `com.discord`, `com.spotify.music` |
+
+> **Note:** On Linux/macOS, mihomo may require `sudo` or capabilities `CAP_NET_ADMIN` + `CAP_SYS_PTRACE` to detect process names.
+
+---
+
 ## 🔄 Updating Lists
 
 Domain lists are automatically updated every 24 hours (by default) thanks to the `interval: 86400` parameter.
@@ -323,7 +399,8 @@ ClashDomainsList/
 ├── torrent.txt        # Torrent trackers
 ├── torrent.svg
 ├── youtube.txt        # YouTube
-└── youtube.svg
+├── youtube.svg
+└── processes.txt      # Process rules (classical behavior)
 ```
 
 ### File Format

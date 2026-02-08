@@ -41,8 +41,13 @@ jobs:
         run: |
           set -e  # Exit on error
           
-          # Process each txt file
+          # Process each txt file (skip classical behavior files)
+          SKIP_FILES="processes.txt"
           for txt_file in *.txt; do
+            if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
+              echo "Skipping $txt_file (classical behavior, no .mrs conversion)"
+              continue
+            fi
             if [ -f "$txt_file" ]; then
               echo "Processing: $txt_file"
               
