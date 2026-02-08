@@ -1,0 +1,22 @@
+payload:
+  - PROCESS-NAME,Discord.exe
+  - PROCESS-NAME,Update.exe
+  - PROCESS-NAME-REGEX,(?i).*discord.*
+  - PROCESS-NAME-REGEX,(?i).*claude.*
+  - PROCESS-NAME-REGEX,(?i).*openai.*
+  - PROCESS-NAME-REGEX,(?i).*chatgpt.*
+  - PROCESS-NAME-REGEX,(?i).*bard.*
+  - PROCESS-NAME-REGEX,(?i).*gemini.*
+  - PROCESS-NAME-REGEX,(?i).*youtube.*
+  - PROCESS-NAME-REGEX,(?i).*twitter.*
+  - PROCESS-NAME-REGEX,(?i).*spotify.*
+  - PROCESS-NAME-REGEX,(?i).*telegram.*
+  - PROCESS-NAME-REGEX,(?i).*tiktok.*
+  - PROCESS-NAME-REGEX,(?i).*snapchat.*
+  - PROCESS-NAME-REGEX,(?i).*instagram.*
+  - PROCESS-NAME-REGEX,(?i).*whatsapp.*
+  - PROCESS-NAME-REGEX,(?i).*qbittorrent.*
+  - PROCESS-NAME-REGEX,(?i).*utorrent.*
+  - PROCESS-NAME-REGEX,(?i).*bittorrent.*
+  - PROCESS-NAME-REGEX,(?i).*deluge.*
+  - PROCESS-NAME-REGEX,(?i).*transmission.*

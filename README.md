@@ -33,6 +33,7 @@
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Онлайн инструменты и сервисы | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Торрент-трекеры и P2P сервисы | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube и связанные Google сервисы | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
+| **Processes** | Правила по именам процессов (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 
 ---
 
@@ -270,6 +271,81 @@ rules:
 
 ---
 
+## 🔧 Правила по процессам (mihomo / Clash Verge)
+
+Файл `processes.txt` использует `behavior: classical` и содержит правила `PROCESS-NAME` / `PROCESS-NAME-REGEX` для маршрутизации по имени приложения.
+
+> **Важно:** Конвертация в `.mrs` **не поддерживается** для classical behavior. Используйте `format: text` или `format: yaml`.
+
+### Подключение (все процессы через один прокси)
+
+```yaml
+find-process-mode: always  # Обязательно для работы PROCESS-NAME
+
+rule-providers:
+  processes:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt"
+    path: ./ruleset/processes.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,processes,PROXY
+  - MATCH,DIRECT
+```
+
+### Раздельная маршрутизация по категориям
+
+Если нужны разные прокси-группы для разных приложений, добавьте правила напрямую в `rules`:
+
+```yaml
+find-process-mode: always
+
+rules:
+  # Discord
+  - PROCESS-NAME-REGEX,(?i).*discord.*,PROXY Discord
+  - PROCESS-NAME,Update.exe,PROXY Discord
+
+  # AI
+  - PROCESS-NAME-REGEX,(?i).*claude.*,PROXY AI
+  - PROCESS-NAME-REGEX,(?i).*chatgpt.*,PROXY AI
+
+  # YouTube
+  - PROCESS-NAME-REGEX,(?i).*youtube.*,PROXY YouTube
+
+  # Socials
+  - PROCESS-NAME-REGEX,(?i).*twitter.*,PROXY Socials
+  - PROCESS-NAME-REGEX,(?i).*telegram.*,PROXY Socials
+  - PROCESS-NAME-REGEX,(?i).*instagram.*,PROXY Socials
+
+  # Music
+  - PROCESS-NAME-REGEX,(?i).*spotify.*,PROXY Music
+
+  # Torrent
+  - PROCESS-NAME-REGEX,(?i).*qbittorrent.*,PROXY Torrent
+  - PROCESS-NAME-REGEX,(?i).*transmission.*,PROXY Torrent
+
+  # Доменные правила
+  - RULE-SET,youtube,PROXY YouTube
+  - RULE-SET,discord,PROXY Discord
+  - MATCH,DIRECT
+```
+
+### Платформы и имена процессов
+
+| Платформа | Формат имени процесса | Пример |
+|-----------|----------------------|--------|
+| Windows | `Name.exe` | `Discord.exe`, `Spotify.exe` |
+| macOS | `Name` | `Discord`, `Spotify` |
+| Linux | `name` | `discord`, `spotify` |
+| Android | `package.name` | `com.discord`, `com.spotify.music` |
+
+> **Примечание:** На Linux/macOS может потребоваться запуск mihomo с правами `sudo` или capabilities `CAP_NET_ADMIN` + `CAP_SYS_PTRACE` для определения имён процессов.
+
+---
+
 ## 🔄 Обновление списков
 
 Списки доменов обновляются автоматически каждые 24 часа (по умолчанию) благодаря параметру `interval: 86400`.
@@ -322,7 +398,8 @@ ClashDomainsList/
 ├── torrent.txt        # Торрент-трекеры
 ├── torrent.svg
 ├── youtube.txt        # YouTube
-└── youtube.svg
+├── youtube.svg
+└── processes.txt      # Правила по процессам (classical)
 ```
 
 ### Формат файлов
