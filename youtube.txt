@@ -1,48 +1,69 @@
 payload:
   # =====================================================================
+
   #  YouTube — Optimized Domain List for Mihomo / Clash Verge
+
   # =====================================================================
+
   #
+
   #  Оптимизация: ~10,000 → ~220 записей (сокращение на 98%)
+
   #
+
   #  Принцип: '+.domain.com' покрывает домен И ВСЕ поддомены.
+
   #  Одна запись '+.googlevideo.com' заменяет ~9000 конкретных
+
   #  CDN-серверов (r1---sn-*.googlevideo.com и т.д.)
+
   #
+
   #  Совместимость: mihomo (Clash Meta), Clash Verge Rev
+
   #  behavior: domain | format: text / mrs
+
   #
+
   #  Для продвинутого использования (behavior: classical) доступны:
+
   #    - DOMAIN-KEYWORD,youtube     — ключевое слово в домене
+
   #    - DOMAIN-REGEX,^rr\d+---     — regex-паттерны (mihomo)
+
   #    - PROCESS-NAME,YouTube       — маршрутизация по процессу
+
   #    - DST-PORT,443               — фильтрация по порту
+
   #    - AND/OR/NOT                 — логические правила (mihomo)
+
   #    - SUB-RULE                   — вложенные правила (mihomo)
+
   #
+
   # =====================================================================
 
   # ─── YouTube — Основные домены ───────────────────────────────────────
-  - '+.youtube.com'
-  - '+.youtube-nocookie.com'
   - '+.youtu.be'
+  - '+.youtube-nocookie.com'
+  - '+.youtube.com'
   - '+.yt.be'
 
   # ─── YouTube — Сервисы ──────────────────────────────────────────────
-  - '+.youtubekids.com'
-  - '+.youtubeeducation.com'
-  - '+.youtubegaming.com'
-  - '+.youtubefanfest.com'
-  - '+.youtubemobilesupport.com'
   - '+.withyoutube.com'
   - '+.youtube.soy'
   - '+.youtube.tv'
+  - '+.youtubeeducation.com'
+  - '+.youtubefanfest.com'
+  - '+.youtubegaming.com'
+  - '+.youtubekids.com'
+  - '+.youtubemobilesupport.com'
 
   # ─── YouTube Go — Региональные ──────────────────────────────────────
-  - '+.youtubego.com'
-  - '+.youtubego.com.br'
   - '+.youtubego.co.id'
   - '+.youtubego.co.in'
+  - '+.youtubego.com'
+  - '+.youtubego.com.br'
   - '+.youtubego.id'
   - '+.youtubego.in'
 
@@ -201,26 +222,30 @@ payload:
   - '+.youtube.com.ve'
 
   # ─── Google Video CDN ───────────────────────────────────────────────
+
   # Один wildcard покрывает ВСЕ CDN-серверы:
+
   #   r1---sn-*.googlevideo.com, rr1---sn-*.googlevideo.com,
+
   #   o-o---preferred---.googlevideo.com и т.д.
   - '+.googlevideo.com'
 
   # ─── Google Video Transcoder CDN ────────────────────────────────────
+
   # Серверы адаптивного стриминга (ABR / DASH / HLS)
   - '+.gvt1.com'
 
   # ─── YouTube API (googleapis.com) ───────────────────────────────────
-  - '+.youtube.googleapis.com'
-  - '+.youtubei.googleapis.com'
-  - '+.youtubeembeddedplayer.googleapis.com'
   - '+.jnn-pa.googleapis.com'
   - '+.notifications-pa.googleapis.com'
+  - '+.youtube.googleapis.com'
+  - '+.youtubeembeddedplayer.googleapis.com'
+  - '+.youtubei.googleapis.com'
 
   # ─── YouTube Image / Thumbnail CDN ─────────────────────────────────
-  - '+.ytimg.com'
-  - '+.ggpht.com'
   - '+.ggpht.cn'
+  - '+.ggpht.com'
+  - '+.ytimg.com'
 
   # ─── Google User Content (аватары, превью) ─────────────────────────
   - '+.lh3.googleusercontent.com'
@@ -233,17 +258,20 @@ payload:
   - '+.gstatic.com'
 
   # ─── Google Analytics / Suggestions (YouTube) ──────────────────────
-  - '+.video-analytics.google.com'
   - '+.suggestqueries.google.com'
+  - '+.video-analytics.google.com'
 
   # ─── YouTube Internal CDN (Google L3 / Edge) ───────────────────────
   - '+.wide-youtube.l.google.com'
   - '+.youtube-ui.l.google.com'
 
   # ─── Third-party — YouTube Extensions (опционально) ────────────────
+
   # Return YouTube Dislike — возвращает счётчик дизлайков
   - '+.returnyoutubedislikeapi.com'
+
   # SponsorBlock — пропуск рекламных интеграций в видео
   - '+.sponsor.ajay.app'
+
   # DeArrow — замена кликбейтных превью и заголовков
   - '+.dearrow-thumb.ajay.app'
