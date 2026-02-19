@@ -961,6 +961,7 @@ payload:
   - '+.sf6-ttcdn-tos.pstatp.com'
   - '+.sgsnssdk.com'
   - '+.share.snapchat.com'
+  - '+.shikimori.one'
   - '+.shows.snapchat.com'
   - '+.sks.snapchat.com'
   - '+.snap-dev.net'
