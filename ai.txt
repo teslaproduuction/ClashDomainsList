@@ -121,6 +121,12 @@ payload:
   - '+.opal.google'
   - '+.servd-anthropic-website.b-cdn.net'
   - '+.webchannel-alkalimakersuite-pa.clients6.google.com'
+  - '+.alkalicore-pa.clients6.google.com'
+  - '+.geller-pa.googleapis.com'
+  - '+.generativelanguage.googleapis.com'
+  - '+.notebooklm.google.com'
+  - '+.proactivebackend-pa.googleapis.com'
+  - '+.subscriptionsfirstparty-pa.googleapis.com'
 
   # Other AI Services
   - '+.cerebras.ai'
