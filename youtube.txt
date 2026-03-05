@@ -10,7 +10,7 @@ payload:
   - '+.lh5.googleusercontent.com'
   - '+.notifications-pa.googleapis.com'
   - '+.returnyoutubedislikeapi.com'
-  - '+.sponsor.ajay.app'
+  - '+.ajay.app'
   - '+.suggestqueries.google.com'
   - '+.video-analytics.google.com'
   - '+.wide-youtube.l.google.com'
