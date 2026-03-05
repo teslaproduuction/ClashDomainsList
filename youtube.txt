@@ -1,4 +1,5 @@
 payload:
+  - '+.ajay.app'
   - '+.dearrow-thumb.ajay.app'
   - '+.ggpht.cn'
   - '+.ggpht.com'
@@ -10,7 +11,6 @@ payload:
   - '+.lh5.googleusercontent.com'
   - '+.notifications-pa.googleapis.com'
   - '+.returnyoutubedislikeapi.com'
-  - '+.ajay.app'
   - '+.suggestqueries.google.com'
   - '+.video-analytics.google.com'
   - '+.wide-youtube.l.google.com'
