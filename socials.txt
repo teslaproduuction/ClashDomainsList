@@ -1233,3 +1233,5 @@ payload:
   - 'www.tiktokw.eu'
   - 'www.twitter.com'
   - 'www.x.com'
+  - 'deadorbit.net'
+  - 'gravityshavings.net'
