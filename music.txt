@@ -187,6 +187,7 @@ payload:
   - '+.spoti.fi'
   - '+.spotify-everywhere.com'
   - '+.spotify.com'
+  - '+.spotify.demdex.net'
   - '+.spotify.design'
   - '+.spotifycdn.com'
   - '+.spotifycdn.net'
