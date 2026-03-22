@@ -31,7 +31,9 @@ A collection of domain lists for Clash and compatible proxy clients. Convenient 
 | <img src="porno.svg" width="200" alt="Porno"> **Porno** | Adult content | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
 | <img src="socials.svg" width="200" alt="Socials"> **Socials** | Social networks (Facebook, Instagram, Twitter, etc.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Online tools and services | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
+| <img src="telegram.svg" width="200" alt="Telegram"> **Telegram** | Telegram and related services | ~50 | [telegram.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Torrent trackers and P2P services | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
+| <img src="twitch.svg" width="200" alt="Twitch"> **Twitch** | Twitch and related streaming services | ~14 | [twitch.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube and related Google services | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
 | **Processes** | Process name rules (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 

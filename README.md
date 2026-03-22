@@ -31,7 +31,9 @@
 | <img src="porno.svg" width="200" alt="Porno"> **Porno** | Контент для взрослых | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
 | <img src="socials.svg" width="200" alt="Socials"> **Socials** | Социальные сети (Facebook, Instagram, Twitter и др.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Онлайн инструменты и сервисы | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
+| <img src="telegram.svg" width="200" alt="Telegram"> **Telegram** | Telegram и связанные сервисы | ~50 | [telegram.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Торрент-трекеры и P2P сервисы | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
+| <img src="twitch.svg" width="200" alt="Twitch"> **Twitch** | Twitch и связанные стриминговые сервисы | ~14 | [twitch.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube и связанные Google сервисы | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
 | **Processes** | Правила по именам процессов (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 
