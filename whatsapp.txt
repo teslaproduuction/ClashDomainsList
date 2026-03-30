@@ -17,7 +17,6 @@ payload:
   - '+.my-od-5.whatsapp.com'
   - '+.my-od-5.whatsapp.net'
   - '+.my-od.wa.me'
-  - 'wa.me'
   - '+.whatsapp-plus.info'
   - '+.whatsapp-plus.me'
   - '+.whatsapp-plus.net'
@@ -29,4 +28,5 @@ payload:
   - '+.whatsapp.org'
   - '+.whatsapp.tv'
   - '+.whatsappbrand.com'
+  - 'wa.me'
   - 'wl.co'
