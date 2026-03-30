@@ -34,6 +34,7 @@
 | <img src="telegram.svg" width="200" alt="Telegram"> **Telegram** | Telegram и связанные сервисы | ~50 | [telegram.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Торрент-трекеры и P2P сервисы | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
 | <img src="twitch.svg" width="200" alt="Twitch"> **Twitch** | Twitch и связанные стриминговые сервисы | ~14 | [twitch.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt) |
+| <img src="whatsapp.svg" width="200" alt="WhatsApp"> **WhatsApp** | WhatsApp и связанные сервисы | ~30 | [whatsapp.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/whatsapp.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube и связанные Google сервисы | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
 | **Processes** | Правила по именам процессов (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 
