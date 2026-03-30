@@ -34,6 +34,7 @@ A collection of domain lists for Clash and compatible proxy clients. Convenient 
 | <img src="telegram.svg" width="200" alt="Telegram"> **Telegram** | Telegram and related services | ~50 | [telegram.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt) |
 | <img src="torrent.svg" width="200" alt="Torrent"> **Torrent** | Torrent trackers and P2P services | ~40 | [torrent.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/torrent.txt) |
 | <img src="twitch.svg" width="200" alt="Twitch"> **Twitch** | Twitch and related streaming services | ~14 | [twitch.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt) |
+| <img src="whatsapp.svg" width="200" alt="WhatsApp"> **WhatsApp** | WhatsApp and related services | ~30 | [whatsapp.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/whatsapp.txt) |
 | <img src="youtube.svg" width="200" alt="YouTube"> **YouTube** | YouTube and related Google services | ~8000 | [youtube.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/youtube.txt) |
 | **Processes** | Process name rules (mihomo) | ~20 | [processes.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/processes.txt) |
 
@@ -103,6 +104,27 @@ rule-providers:
     url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt"
     path: ./ruleset/music.yaml
     interval: 86400
+
+  telegram:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt"
+    path: ./ruleset/telegram.yaml
+    interval: 86400
+
+  twitch:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt"
+    path: ./ruleset/twitch.yaml
+    interval: 86400
+
+  whatsapp:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/whatsapp.txt"
+    path: ./ruleset/whatsapp.yaml
+    interval: 86400
 ```
 
 ### Step 2: Add routing rules
@@ -131,6 +153,15 @@ rules:
 
   # Tools through proxy
   - RULE-SET,tools,PROXY
+
+  # Telegram through proxy
+  - RULE-SET,telegram,PROXY
+
+  # Twitch through proxy
+  - RULE-SET,twitch,PROXY
+
+  # WhatsApp through proxy
+  - RULE-SET,whatsapp,PROXY
 
   # Block adult content
   - RULE-SET,porno,REJECT
