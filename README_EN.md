@@ -104,6 +104,27 @@ rule-providers:
     url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt"
     path: ./ruleset/music.yaml
     interval: 86400
+
+  telegram:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt"
+    path: ./ruleset/telegram.yaml
+    interval: 86400
+
+  twitch:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt"
+    path: ./ruleset/twitch.yaml
+    interval: 86400
+
+  whatsapp:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/whatsapp.txt"
+    path: ./ruleset/whatsapp.yaml
+    interval: 86400
 ```
 
 ### Step 2: Add routing rules
@@ -132,6 +153,15 @@ rules:
 
   # Tools through proxy
   - RULE-SET,tools,PROXY
+
+  # Telegram through proxy
+  - RULE-SET,telegram,PROXY
+
+  # Twitch through proxy
+  - RULE-SET,twitch,PROXY
+
+  # WhatsApp through proxy
+  - RULE-SET,whatsapp,PROXY
 
   # Block adult content
   - RULE-SET,porno,REJECT

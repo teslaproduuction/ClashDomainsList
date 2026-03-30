@@ -104,6 +104,27 @@ rule-providers:
     url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt"
     path: ./ruleset/music.yaml
     interval: 86400
+
+  telegram:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/telegram.txt"
+    path: ./ruleset/telegram.yaml
+    interval: 86400
+
+  twitch:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/twitch.txt"
+    path: ./ruleset/twitch.yaml
+    interval: 86400
+
+  whatsapp:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/whatsapp.txt"
+    path: ./ruleset/whatsapp.yaml
+    interval: 86400
 ```
 
 ### Шаг 2: Добавьте правила маршрутизации
@@ -132,6 +153,15 @@ rules:
 
   # Инструменты через прокси
   - RULE-SET,tools,PROXY
+
+  # Telegram через прокси
+  - RULE-SET,telegram,PROXY
+
+  # Twitch через прокси
+  - RULE-SET,twitch,PROXY
+
+  # WhatsApp через прокси
+  - RULE-SET,whatsapp,PROXY
 
   # Блокировка контента для взрослых
   - RULE-SET,porno,REJECT
