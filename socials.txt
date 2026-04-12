@@ -163,6 +163,8 @@ payload:
   - '+.dc-api.twitter.com'
   - '+.de.quora.com'
   - '+.deadorbit.net'
+  - '+.deviantart.com'
+  - '+.deviantart.net'
   - '+.dev.facebook.com'
   - '+.developer.snapchat.com'
   - '+.developers.snapchat.com'
