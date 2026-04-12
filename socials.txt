@@ -1213,6 +1213,7 @@ payload:
   - '+.zendesk2.patreon.com'
   - '+.zendesk3.patreon.com'
   - '+.zendesk4.patreon.com'
+  - 'www.deviantart.com'
   - 'www.dev.facebook.com'
   - 'www.events.snapchat.com'
   - 'www.facebook.com'
