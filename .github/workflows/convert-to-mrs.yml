@@ -22,26 +22,36 @@ jobs:
 
       - name: Download mihomo
         run: |
-          # Get the latest alpha version
           VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
-
           if [ -z "$VERSION" ]; then
-            echo "Error: Failed to fetch mihomo version from GitHub releases"
+            echo "Error: Failed to fetch mihomo version"
             exit 1
           fi
 
           echo "Downloading mihomo version: $VERSION"
-
-          # Download and extract mihomo
           curl -sL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
           gzip -d mihomo.gz
           chmod +x mihomo
 
       - name: Sort and convert files
         run: |
-          set -e
+          set -euo pipefail
 
           SKIP_FILES="processes.txt"
+
+          is_ipv4_or_cidr() {
+            local v="$1"
+            awk -v s="$v" -F'[./]' '
+              function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
+              function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
+              BEGIN {
+                if (NF!=4 && NF!=5) exit 1
+                if (!is_octet($1) || !is_octet($2) || !is_octet($3) || !is_octet($4)) exit 1
+                if (NF==5 && !is_mask($5)) exit 1
+                exit 0
+              }
+            ' <<< "$v"
+          }
 
           for txt_file in *.txt; do
             if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
@@ -53,89 +63,94 @@ jobs:
             echo "Processing: $txt_file"
             base_name="${txt_file%.txt}"
 
-            # Keep old sorter for domain files; don't fail on IP-style files
+            # Keep existing domain sorter behavior (non-fatal for IP lists)
             python3 .github/scripts/sort_domains.py "$txt_file" || true
 
             mrs_input=$(mktemp)
 
-            # Try extractor first
+            # Prefer extractor, but don't trust it as the only source
             python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input" || true
 
-            # Fallback: normalize raw lines
+            # If extractor is empty, parse raw txt directly
             if [ ! -s "$mrs_input" ]; then
-              sed -e 's/\r$//' "$txt_file" \
-                | sed -E 's/[[:space:]]+#.*$//' \
-                | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
-                | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
-                | sed -E '/^[[:space:]]*$/d' \
-                > "$mrs_input"
-            else
-              # Normalize extractor output too (important for lines like "- 1.2.3.0/24")
-              tmp_norm=$(mktemp)
-              sed -e 's/\r$//' "$mrs_input" \
-                | sed -E 's/[[:space:]]+#.*$//' \
-                | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
-                | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
-                | sed -E '/^[[:space:]]*$/d' \
-                > "$tmp_norm"
-              mv "$tmp_norm" "$mrs_input"
+              cp "$txt_file" "$mrs_input"
             fi
 
+            # Normalize:
+            # - remove CRLF
+            # - remove comments
+            # - drop "payload:" header
+            # - remove YAML list prefix "- "
+            # - trim spaces
+            # - drop empty lines
+            tmp_norm=$(mktemp)
+            sed -e 's/\r$//' "$mrs_input" \
+              | sed -E 's/[[:space:]]+#.*$//' \
+              | sed -E '/^[[:space:]]*payload:[[:space:]]*$/Id' \
+              | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
+              | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
+              | sed -E '/^[[:space:]]*$/d' \
+              > "$tmp_norm"
+            mv "$tmp_norm" "$mrs_input"
+
             if [ ! -s "$mrs_input" ]; then
-              echo "Warning: No rules found in $txt_file"
+              echo "Warning: No rules found in $txt_file after normalization"
               rm -f "$mrs_input"
               continue
             fi
 
-            # strict IPv4/CIDR validator
-            if awk -F'[./]' '
-              function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
-              function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
-              BEGIN { ok=1 }
-              {
-                # expect a.b.c.d or a.b.c.d/m
-                if (NF!=4 && NF!=5) { ok=0; exit }
-                if (!is_octet($1) || !is_octet($2) || !is_octet($3) || !is_octet($4)) { ok=0; exit }
-                if (NF==5 && !is_mask($5)) { ok=0; exit }
-              }
-              END { exit(ok?0:1) }
-            ' "$mrs_input"; then
-              RULE_TYPE="ipcidr"
-            else
-              RULE_TYPE="domain"
+            # Decide type by scanning all lines
+            RULE_TYPE="ipcidr"
+            while IFS= read -r line; do
+              if ! is_ipv4_or_cidr "$line"; then
+                RULE_TYPE="domain"
+                break
+              fi
+            done < "$mrs_input"
+
+            # For ipcidr: add /32 when mask is absent
+            if [ "$RULE_TYPE" = "ipcidr" ]; then
+              tmp_ip=$(mktemp)
+              awk '
+                {
+                  if ($0 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) print $0"/32";
+                  else print $0;
+                }
+              ' "$mrs_input" > "$tmp_ip"
+              mv "$tmp_ip" "$mrs_input"
             fi
 
-            echo "Detected rules type for ${txt_file}: ${RULE_TYPE}"
-            echo "Input sample:"
+            echo "Detected type for $txt_file: $RULE_TYPE"
+            echo "Input preview:"
             head -10 "$mrs_input"
 
-            if ! ./mihomo convert-ruleset "${RULE_TYPE}" text "$mrs_input" "${base_name}.mrs" 2>&1; then
-              echo "Error: Failed to convert $txt_file to mrs format"
-              echo "Detected type: ${RULE_TYPE}"
+            if ! ./mihomo convert-ruleset "$RULE_TYPE" text "$mrs_input" "${base_name}.mrs" 2>&1; then
+              echo "Error: Failed conversion for $txt_file"
+              echo "Detected type: $RULE_TYPE"
+              echo "First 20 normalized lines:"
               head -20 "$mrs_input"
               rm -f "$mrs_input"
               exit 1
             fi
 
             if [ ! -f "${base_name}.mrs" ]; then
-              echo "Error: Output file ${base_name}.mrs was not created"
+              echo "Error: ${base_name}.mrs not created"
               rm -f "$mrs_input"
               exit 1
             fi
 
-            # Guardrail: tiny ipcidr .mrs usually means bad parse/empty effective input
-            if [ "${RULE_TYPE}" = "ipcidr" ]; then
+            # Guard against broken tiny output for IP lists
+            if [ "$RULE_TYPE" = "ipcidr" ]; then
               size=$(wc -c < "${base_name}.mrs")
               if [ "$size" -lt 100 ]; then
-                echo "Error: ${base_name}.mrs is suspiciously small (${size} bytes) for ipcidr input"
-                echo "First 20 normalized input lines:"
+                echo "Error: ${base_name}.mrs too small (${size} bytes) for ipcidr list"
                 head -20 "$mrs_input"
                 rm -f "$mrs_input"
                 exit 1
               fi
             fi
 
-            echo "Converted: $txt_file -> ${base_name}.mrs (${RULE_TYPE})"
+            echo "Converted: $txt_file -> ${base_name}.mrs ($RULE_TYPE)"
             rm -f "$mrs_input"
           done
 
@@ -144,13 +159,11 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          # Add all changes
           git add *.txt *.mrs
 
-          # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto-sort rules and update .mrs files (domain/ipcidr)"
+            git commit -m "Auto-convert TXT to MRS (domain/ipcidr, YAML payload supported)"
             git push
           fi
