@@ -50,63 +50,68 @@ jobs:
               continue
             fi
 
-            if [ -f "$txt_file" ]; then
-              echo "Processing: $txt_file"
+            [ -f "$txt_file" ] || continue
+            echo "Processing: $txt_file"
 
-              # Get base name (without extension)
-              base_name="${txt_file%.txt}"
+            # Get base name (without extension)
+            base_name="${txt_file%.txt}"
 
-              # Sort domains file (kept for compatibility with current repo script)
-              python3 .github/scripts/sort_domains.py "$txt_file"
+            # Keep existing sort behavior (for domain lists)
+            python3 .github/scripts/sort_domains.py "$txt_file" || true
 
-              # Create a text file for mihomo (extract rules)
-              mrs_input=$(mktemp)
-              python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input"
+            # Build input for mihomo
+            mrs_input=$(mktemp)
 
-              # Check if we have rules to convert
-              if [ ! -s "$mrs_input" ]; then
-                echo "Warning: No rules found in $txt_file"
-                rm -f "$mrs_input"
-                continue
-              fi
+            # 1) Try existing extractor first
+            python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input" || true
 
-              # Detect rule type: ipcidr or domain
-              # ipcidr if every non-empty/non-comment line is IPv4 or IPv4 CIDR
-              if awk '
-                BEGIN { ok=1 }
-                /^[[:space:]]*($|#)/ { next }
-                !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]{1,2})?$/ { ok=0; exit }
-                END { exit(ok?0:1) }
-              ' "$mrs_input"; then
-                RULE_TYPE="ipcidr"
-              else
-                RULE_TYPE="domain"
-              fi
-
-              echo "Detected rules type for ${txt_file}: ${RULE_TYPE}"
-
-              # Convert to mrs format using mihomo
-              if ! ./mihomo convert-ruleset "${RULE_TYPE}" text "$mrs_input" "${base_name}.mrs" 2>&1; then
-                echo "Error: Failed to convert $txt_file to mrs format"
-                echo "Detected type: ${RULE_TYPE}"
-                echo "Input file content (first 20 lines):"
-                head -20 "$mrs_input"
-                rm -f "$mrs_input"
-                exit 1
-              fi
-
-              # Verify output file was created
-              if [ ! -f "${base_name}.mrs" ]; then
-                echo "Error: Output file ${base_name}.mrs was not created"
-                rm -f "$mrs_input"
-                exit 1
-              fi
-
-              echo "Converted: $txt_file -> ${base_name}.mrs (${RULE_TYPE})"
-
-              # Clean up
-              rm -f "$mrs_input"
+            # 2) Fallback for raw IP/CIDR or plain text lists
+            if [ ! -s "$mrs_input" ]; then
+              echo "Extractor returned empty for $txt_file, using raw lines fallback"
+              sed -e 's/\r$//' "$txt_file" \
+                | sed -E 's/[[:space:]]+#.*$//' \
+                | sed -E '/^[[:space:]]*$/d' \
+                > "$mrs_input"
             fi
+
+            # Check again
+            if [ ! -s "$mrs_input" ]; then
+              echo "Warning: No rules found in $txt_file"
+              rm -f "$mrs_input"
+              continue
+            fi
+
+            # Detect rule type: ipcidr if every line is IPv4[/mask], else domain
+            if awk '
+              BEGIN { ok=1 }
+              /^[[:space:]]*($|#)/ { next }
+              !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/([0-9]|[1-2][0-9]|3[0-2]))?$/ { ok=0; exit }
+              END { exit(ok?0:1) }
+            ' "$mrs_input"; then
+              RULE_TYPE="ipcidr"
+            else
+              RULE_TYPE="domain"
+            fi
+
+            echo "Detected rules type for ${txt_file}: ${RULE_TYPE}"
+
+            if ! ./mihomo convert-ruleset "${RULE_TYPE}" text "$mrs_input" "${base_name}.mrs" 2>&1; then
+              echo "Error: Failed to convert $txt_file to mrs format"
+              echo "Detected type: ${RULE_TYPE}"
+              echo "Input file content (first 20 lines):"
+              head -20 "$mrs_input"
+              rm -f "$mrs_input"
+              exit 1
+            fi
+
+            if [ ! -f "${base_name}.mrs" ]; then
+              echo "Error: Output file ${base_name}.mrs was not created"
+              rm -f "$mrs_input"
+              exit 1
+            fi
+
+            echo "Converted: $txt_file -> ${base_name}.mrs (${RULE_TYPE})"
+            rm -f "$mrs_input"
           done
 
       - name: Commit changes
