@@ -24,14 +24,14 @@ jobs:
         run: |
           # Get the latest alpha version
           VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
-          
+
           if [ -z "$VERSION" ]; then
             echo "Error: Failed to fetch mihomo version from GitHub releases"
             exit 1
           fi
-          
+
           echo "Downloading mihomo version: $VERSION"
-          
+
           # Download and extract mihomo
           curl -sL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
           gzip -d mihomo.gz
@@ -40,52 +40,70 @@ jobs:
       - name: Sort and convert files
         run: |
           set -e  # Exit on error
-          
+
           # Process each txt file (skip classical behavior files)
           SKIP_FILES="processes.txt"
+
           for txt_file in *.txt; do
             if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
               echo "Skipping $txt_file (classical behavior, no .mrs conversion)"
               continue
             fi
+
             if [ -f "$txt_file" ]; then
               echo "Processing: $txt_file"
-              
+
               # Get base name (without extension)
               base_name="${txt_file%.txt}"
-              
-              # Sort the file while preserving structure
+
+              # Sort domains file (kept for compatibility with current repo script)
               python3 .github/scripts/sort_domains.py "$txt_file"
-              
-              # Create a text file for mihomo (extract domains using Python script)
+
+              # Create a text file for mihomo (extract rules)
               mrs_input=$(mktemp)
               python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input"
-              
-              # Check if we have domains to convert
+
+              # Check if we have rules to convert
               if [ ! -s "$mrs_input" ]; then
-                echo "Warning: No domains found in $txt_file"
+                echo "Warning: No rules found in $txt_file"
                 rm -f "$mrs_input"
                 continue
               fi
-              
+
+              # Detect rule type: ipcidr or domain
+              # ipcidr if every non-empty/non-comment line is IPv4 or IPv4 CIDR
+              if awk '
+                BEGIN { ok=1 }
+                /^[[:space:]]*($|#)/ { next }
+                !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]{1,2})?$/ { ok=0; exit }
+                END { exit(ok?0:1) }
+              ' "$mrs_input"; then
+                RULE_TYPE="ipcidr"
+              else
+                RULE_TYPE="domain"
+              fi
+
+              echo "Detected rules type for ${txt_file}: ${RULE_TYPE}"
+
               # Convert to mrs format using mihomo
-              if ! ./mihomo convert-ruleset domain text "$mrs_input" "${base_name}.mrs" 2>&1; then
+              if ! ./mihomo convert-ruleset "${RULE_TYPE}" text "$mrs_input" "${base_name}.mrs" 2>&1; then
                 echo "Error: Failed to convert $txt_file to mrs format"
-                echo "Input file content (first 10 lines):"
-                head -10 "$mrs_input"
+                echo "Detected type: ${RULE_TYPE}"
+                echo "Input file content (first 20 lines):"
+                head -20 "$mrs_input"
                 rm -f "$mrs_input"
                 exit 1
               fi
-              
-              # Verify the output file was created
+
+              # Verify output file was created
               if [ ! -f "${base_name}.mrs" ]; then
                 echo "Error: Output file ${base_name}.mrs was not created"
                 rm -f "$mrs_input"
                 exit 1
               fi
-              
-              echo "Converted: $txt_file -> ${base_name}.mrs"
-              
+
+              echo "Converted: $txt_file -> ${base_name}.mrs (${RULE_TYPE})"
+
               # Clean up
               rm -f "$mrs_input"
             fi
@@ -95,14 +113,14 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Add all changes
           git add *.txt *.mrs
-          
+
           # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto-sort domains and update .mrs files"
+            git commit -m "Auto-sort rules and update .mrs files (domain/ipcidr)"
             git push
           fi
