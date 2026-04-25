@@ -129,3 +129,4 @@ payload:
   - 'www.xnxx.com'
   - 'www.xv-ru.com'
   - 'www.xvideos.com'
+  - 'www.island-of-pleasure.site'
