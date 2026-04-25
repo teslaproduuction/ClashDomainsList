@@ -117,6 +117,7 @@ payload:
   - 'www.beeg.com'
   - 'www.f95zone.to'
   - 'www.hqporner.com'
+  - 'www.island-of-pleasure.site'
   - 'www.pornhub.com'
   - 'www.pornolab.net'
   - 'www.reddxxx.com'
@@ -129,4 +130,3 @@ payload:
   - 'www.xnxx.com'
   - 'www.xv-ru.com'
   - 'www.xvideos.com'
-  - 'www.island-of-pleasure.site'
