@@ -39,9 +39,8 @@ jobs:
 
       - name: Sort and convert files
         run: |
-          set -e  # Exit on error
+          set -e
 
-          # Process each txt file (skip classical behavior files)
           SKIP_FILES="processes.txt"
 
           for txt_file in *.txt; do
@@ -52,40 +51,53 @@ jobs:
 
             [ -f "$txt_file" ] || continue
             echo "Processing: $txt_file"
-
-            # Get base name (without extension)
             base_name="${txt_file%.txt}"
 
-            # Keep existing sort behavior (for domain lists)
+            # Keep old sorter for domain files; don't fail on IP-style files
             python3 .github/scripts/sort_domains.py "$txt_file" || true
 
-            # Build input for mihomo
             mrs_input=$(mktemp)
 
-            # 1) Try existing extractor first
+            # Try extractor first
             python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$mrs_input" || true
 
-            # 2) Fallback for raw IP/CIDR or plain text lists
+            # Fallback: normalize raw lines
             if [ ! -s "$mrs_input" ]; then
-              echo "Extractor returned empty for $txt_file, using raw lines fallback"
               sed -e 's/\r$//' "$txt_file" \
                 | sed -E 's/[[:space:]]+#.*$//' \
+                | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
+                | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
                 | sed -E '/^[[:space:]]*$/d' \
                 > "$mrs_input"
+            else
+              # Normalize extractor output too (important for lines like "- 1.2.3.0/24")
+              tmp_norm=$(mktemp)
+              sed -e 's/\r$//' "$mrs_input" \
+                | sed -E 's/[[:space:]]+#.*$//' \
+                | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
+                | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
+                | sed -E '/^[[:space:]]*$/d' \
+                > "$tmp_norm"
+              mv "$tmp_norm" "$mrs_input"
             fi
 
-            # Check again
             if [ ! -s "$mrs_input" ]; then
               echo "Warning: No rules found in $txt_file"
               rm -f "$mrs_input"
               continue
             fi
 
-            # Detect rule type: ipcidr if every line is IPv4[/mask], else domain
-            if awk '
+            # strict IPv4/CIDR validator
+            if awk -F'[./]' '
+              function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
+              function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
               BEGIN { ok=1 }
-              /^[[:space:]]*($|#)/ { next }
-              !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/([0-9]|[1-2][0-9]|3[0-2]))?$/ { ok=0; exit }
+              {
+                # expect a.b.c.d or a.b.c.d/m
+                if (NF!=4 && NF!=5) { ok=0; exit }
+                if (!is_octet($1) || !is_octet($2) || !is_octet($3) || !is_octet($4)) { ok=0; exit }
+                if (NF==5 && !is_mask($5)) { ok=0; exit }
+              }
               END { exit(ok?0:1) }
             ' "$mrs_input"; then
               RULE_TYPE="ipcidr"
@@ -94,11 +106,12 @@ jobs:
             fi
 
             echo "Detected rules type for ${txt_file}: ${RULE_TYPE}"
+            echo "Input sample:"
+            head -10 "$mrs_input"
 
             if ! ./mihomo convert-ruleset "${RULE_TYPE}" text "$mrs_input" "${base_name}.mrs" 2>&1; then
               echo "Error: Failed to convert $txt_file to mrs format"
               echo "Detected type: ${RULE_TYPE}"
-              echo "Input file content (first 20 lines):"
               head -20 "$mrs_input"
               rm -f "$mrs_input"
               exit 1
@@ -108,6 +121,18 @@ jobs:
               echo "Error: Output file ${base_name}.mrs was not created"
               rm -f "$mrs_input"
               exit 1
+            fi
+
+            # Guardrail: tiny ipcidr .mrs usually means bad parse/empty effective input
+            if [ "${RULE_TYPE}" = "ipcidr" ]; then
+              size=$(wc -c < "${base_name}.mrs")
+              if [ "$size" -lt 100 ]; then
+                echo "Error: ${base_name}.mrs is suspiciously small (${size} bytes) for ipcidr input"
+                echo "First 20 normalized input lines:"
+                head -20 "$mrs_input"
+                rm -f "$mrs_input"
+                exit 1
+              fi
             fi
 
             echo "Converted: $txt_file -> ${base_name}.mrs (${RULE_TYPE})"
