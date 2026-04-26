@@ -2,10 +2,9 @@ name: Convert TXT to MRS
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - '*.txt'
+      - "*.txt"
   workflow_dispatch:
 
 jobs:
@@ -21,186 +20,170 @@ jobs:
           fetch-depth: 0
 
       - name: Download mihomo
+        shell: bash
         run: |
           set -euo pipefail
-          VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)
-          [ -n "$VERSION" ] || { echo "Error: Failed to fetch mihomo version"; exit 1; }
-
+          VERSION="$(curl -fsSL https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt)"
           echo "Downloading mihomo version: $VERSION"
-          curl -sL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
+          curl -fsSL -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-${VERSION}.gz"
           gzip -d mihomo.gz
           chmod +x mihomo
 
       - name: Sort and convert files
+        shell: bash
         run: |
           set -euo pipefail
+
+          # Optional sorter for domain files in your repo; non-fatal for ip lists
+          for f in *.txt; do
+            [ -f "$f" ] || continue
+            python3 .github/scripts/sort_domains.py "$f" || true
+          done
+
+          # Build normalized input and detect type
+          cat > /tmp/prepare_rules.py <<'PY'
+          import ipaddress
+          import re
+          import sys
+          from pathlib import Path
+
+          src = Path(sys.argv[1])
+          dst = Path(sys.argv[2])
+
+          lines = src.read_text(encoding="utf-8", errors="ignore").splitlines()
+          out = []
+
+          for raw in lines:
+            s = raw.strip().replace("\r", "")
+            if not s:
+              continue
+
+            # remove comments
+            s = re.sub(r"\s+#.*$", "", s).strip()
+            if not s:
+              continue
+
+            # yaml header
+            if s.lower() == "payload:":
+              continue
+
+            # yaml item prefix "- "
+            s = re.sub(r"^\s*-\s*", "", s).strip()
+
+            # strip quotes
+            if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+              s = s[1:-1].strip()
+
+            if s:
+              out.append(s)
+
+          if not out:
+            print("EMPTY")
+            dst.write_text("", encoding="utf-8")
+            sys.exit(0)
+
+          ip_like = 0
+          final_ip = []
+          final_domain = []
+
+          for s in out:
+            try:
+              if "/" in s:
+                n = ipaddress.ip_network(s, strict=False)
+                ip_like += 1
+                final_ip.append(str(n))
+              else:
+                ip = ipaddress.ip_address(s)
+                ip_like += 1
+                final_ip.append(f"{ip}/32" if ip.version == 4 else f"{ip}/128")
+            except ValueError:
+              final_domain.append(s)
+
+          # If mostly IP/CIDR -> ipcidr, else domain
+          ratio = ip_like / len(out)
+          if ratio >= 0.90:
+            rule_type = "ipcidr"
+            final = final_ip
+          else:
+            rule_type = "domain"
+            final = final_domain if final_domain else out
+
+          # dedupe keep order
+          seen = set()
+          uniq = []
+          for x in final:
+            if x not in seen:
+              seen.add(x)
+              uniq.append(x)
+
+          dst.write_text("\n".join(uniq) + ("\n" if uniq else ""), encoding="utf-8")
+          print(rule_type)
+          PY
 
           SKIP_FILES="processes.txt"
 
           for txt_file in *.txt; do
-            if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
-              echo "Skipping $txt_file (classical behavior, no .mrs conversion)"
-              continue
-            fi
             [ -f "$txt_file" ] || continue
 
-            echo "Processing: $txt_file"
-            base_name="${txt_file%.txt}"
-
-            # Keep old domain sorter behavior; non-fatal for IP lists
-            python3 .github/scripts/sort_domains.py "$txt_file" || true
-
-            raw_input=$(mktemp)
-            norm_input=$(mktemp)
-            mrs_input=$(mktemp)
-
-            # 1) Try extractor
-            python3 .github/scripts/sort_domains.py --extract "$txt_file" > "$raw_input" || true
-            # 2) fallback to raw file if extractor empty
-            if [ ! -s "$raw_input" ]; then
-              cp "$txt_file" "$raw_input"
-            fi
-
-            # Normalize YAML/text
-            sed -e 's/\r$//' "$raw_input" \
-              | sed -E 's/[[:space:]]+#.*$//' \
-              | sed -E '/^[[:space:]]*payload:[[:space:]]*$/Id' \
-              | sed -E 's/^[[:space:]]*-[[:space:]]*//' \
-              | sed -E 's/^"(.+)"$/\1/' \
-              | sed -E "s/^'(.+)'$/\1/" \
-              | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
-              | sed -E '/^[[:space:]]*$/d' \
-              > "$norm_input"
-
-            if [ ! -s "$norm_input" ]; then
-              echo "Warning: No rules found in $txt_file after normalization"
-              rm -f "$raw_input" "$norm_input" "$mrs_input"
+            if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
+              echo "Skipping $txt_file"
               continue
             fi
 
-            total=$(wc -l < "$norm_input" | tr -d ' ')
+            base_name="${txt_file%.txt}"
+            mrs_input="$(mktemp)"
 
-            # Count valid IP entries (IPv4/IPv6 with optional CIDR) via Python ipaddress
-            ip_count=$(python3 - "$norm_input" <<'PY'
-import ipaddress, sys
-p = sys.argv[1]
-c = 0
-with open(p, "r", encoding="utf-8") as f:
-    for line in f:
-        s = line.strip()
-        if not s:
-            continue
-        try:
-            if "/" in s:
-                ipaddress.ip_network(s, strict=False)
-            else:
-                ipaddress.ip_address(s)
-            c += 1
-        except Exception:
-            pass
-print(c)
-PY
-)
+            RULE_TYPE="$(python3 /tmp/prepare_rules.py "$txt_file" "$mrs_input")"
 
-            lower_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
+            if [ "$RULE_TYPE" = "EMPTY" ] || [ ! -s "$mrs_input" ]; then
+              echo "Warning: No rules in $txt_file"
+              rm -f "$mrs_input"
+              continue
+            fi
 
-            RULE_TYPE="domain"
-            # force ipcidr for obvious IP list filenames
-            if echo "$lower_name" | grep -Eq '(ipcidr|cidr|(^|[^a-z])ip([^a-z]|$))'; then
-              RULE_TYPE="ipcidr"
-            else
-              # if >=90% lines are valid IP/CIDR => ipcidr
-              if [ "$total" -gt 0 ] && [ $((ip_count * 100 / total)) -ge 90 ]; then
-                RULE_TYPE="ipcidr"
-              fi
+            echo "Detected type for $txt_file: $RULE_TYPE"
+            head -10 "$mrs_input" || true
+
+            ./mihomo convert-ruleset "$RULE_TYPE" text "$mrs_input" "${base_name}.mrs"
+
+            if [ ! -f "${base_name}.mrs" ]; then
+              echo "Error: ${base_name}.mrs was not created"
+              rm -f "$mrs_input"
+              exit 1
             fi
 
             if [ "$RULE_TYPE" = "ipcidr" ]; then
-              # Keep only valid IP/CIDR lines.
-              # Add /32 for plain IPv4 and /128 for plain IPv6.
-              python3 - "$norm_input" "$mrs_input" <<'PY'
-import ipaddress, sys
-src, dst = sys.argv[1], sys.argv[2]
-out = []
-with open(src, "r", encoding="utf-8") as f:
-    for line in f:
-        s = line.strip()
-        if not s:
-            continue
-        try:
-            if "/" in s:
-                ipaddress.ip_network(s, strict=False)
-                out.append(s)
-            else:
-                ip = ipaddress.ip_address(s)
-                out.append(f"{s}/32" if ip.version == 4 else f"{s}/128")
-        except Exception:
-            # skip non-IP lines in ipcidr mode
-            pass
-
-with open(dst, "w", encoding="utf-8") as f:
-    for x in out:
-        f.write(x + "\n")
-PY
-            else
-              cp "$norm_input" "$mrs_input"
-            fi
-
-            if [ ! -s "$mrs_input" ]; then
-              echo "Error: No valid rules for ${txt_file} after type filtering (type=${RULE_TYPE})"
-              echo "First 20 normalized lines:"
-              head -20 "$norm_input" || true
-              rm -f "$raw_input" "$norm_input" "$mrs_input"
-              exit 1
-            fi
-
-            echo "Detected type for $txt_file: $RULE_TYPE (ip_count=${ip_count}, total=${total})"
-            echo "Input preview:"
-            head -10 "$mrs_input"
-
-            if ! ./mihomo convert-ruleset "$RULE_TYPE" text "$mrs_input" "${base_name}.mrs" 2>&1; then
-              echo "Error: Failed conversion for $txt_file"
-              echo "Detected type: $RULE_TYPE"
-              echo "First 20 normalized lines:"
-              head -20 "$norm_input" || true
-              echo "First 20 final lines sent to mihomo:"
-              head -20 "$mrs_input" || true
-              rm -f "$raw_input" "$norm_input" "$mrs_input"
-              exit 1
-            fi
-
-            [ -f "${base_name}.mrs" ] || {
-              echo "Error: ${base_name}.mrs not created"
-              rm -f "$raw_input" "$norm_input" "$mrs_input"
-              exit 1
-            }
-
-            # Guardrail against suspicious tiny output for ipcidr
-            if [ "$RULE_TYPE" = "ipcidr" ]; then
-              size=$(wc -c < "${base_name}.mrs")
+              size="$(wc -c < "${base_name}.mrs")"
               if [ "$size" -lt 100 ]; then
-                echo "Error: ${base_name}.mrs too small (${size} bytes) for ipcidr list"
-                head -20 "$mrs_input" || true
-                rm -f "$raw_input" "$norm_input" "$mrs_input"
+                echo "Error: ${base_name}.mrs too small (${size} bytes)"
+                rm -f "$mrs_input"
                 exit 1
               fi
             fi
 
+            rm -f "$mrs_input"
             echo "Converted: $txt_file -> ${base_name}.mrs ($RULE_TYPE)"
-            rm -f "$raw_input" "$norm_input" "$mrs_input"
           done
 
       - name: Commit changes
+        shell: bash
         run: |
           set -euo pipefail
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          git add *.txt *.mrs
+          shopt -s nullglob
+          files=( *.txt *.mrs )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No txt/mrs files to add"
+            exit 0
+          fi
+
+          git add "${files[@]}"
 
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto-convert TXT to MRS (IPv4/IPv6 ipcidr + domain)"
+            git commit -m "Auto-convert TXT to MRS (domain + IPv4/IPv6 CIDR)"
             git push
           fi
