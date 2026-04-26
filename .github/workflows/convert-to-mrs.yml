@@ -37,22 +37,6 @@ jobs:
 
           SKIP_FILES="processes.txt"
 
-          # return 0 if arg is valid IPv4 or IPv4/CIDR
-          is_ipv4_or_cidr() {
-            local v="$1"
-            awk -v s="$v" -F'[./]' '
-              function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
-              function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
-              BEGIN {
-                # a.b.c.d OR a.b.c.d/m
-                if (NF!=4 && NF!=5) exit 1
-                if (!is_octet($1) || !is_octet($2) || !is_octet($3) || !is_octet($4)) exit 1
-                if (NF==5 && !is_mask($5)) exit 1
-                exit 0
-              }
-            ' <<< "$v"
-          }
-
           for txt_file in *.txt; do
             if echo "$SKIP_FILES" | grep -qw "$txt_file"; then
               echo "Skipping $txt_file (classical behavior, no .mrs conversion)"
@@ -63,7 +47,7 @@ jobs:
             echo "Processing: $txt_file"
             base_name="${txt_file%.txt}"
 
-            # Keep old domain sorter behavior; don't fail whole job for IP-style files
+            # Keep old domain sorter behavior; non-fatal for IP lists
             python3 .github/scripts/sort_domains.py "$txt_file" || true
 
             raw_input=$(mktemp)
@@ -77,7 +61,7 @@ jobs:
               cp "$txt_file" "$raw_input"
             fi
 
-            # Normalize common YAML/text formats
+            # Normalize YAML/text
             sed -e 's/\r$//' "$raw_input" \
               | sed -E 's/[[:space:]]+#.*$//' \
               | sed -E '/^[[:space:]]*payload:[[:space:]]*$/Id' \
@@ -94,57 +78,70 @@ jobs:
               continue
             fi
 
-            # Heuristic detection
             total=$(wc -l < "$norm_input" | tr -d ' ')
-            ip_count=$(awk '
-              function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
-              function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
-              BEGIN { c=0 }
-              {
-                n=split($0,a,/[.\/]/)
-                ok=1
-                if (n!=4 && n!=5) ok=0
-                else {
-                  for(i=1;i<=4;i++) if(!is_octet(a[i])) ok=0
-                  if(n==5 && !is_mask(a[5])) ok=0
-                }
-                if(ok) c++
-              }
-              END { print c }
-            ' "$norm_input")
+
+            # Count valid IP entries (IPv4/IPv6 with optional CIDR) via Python ipaddress
+            ip_count=$(python3 - "$norm_input" <<'PY'
+import ipaddress, sys
+p = sys.argv[1]
+c = 0
+with open(p, "r", encoding="utf-8") as f:
+    for line in f:
+        s = line.strip()
+        if not s:
+            continue
+        try:
+            if "/" in s:
+                ipaddress.ip_network(s, strict=False)
+            else:
+                ipaddress.ip_address(s)
+            c += 1
+        except Exception:
+            pass
+print(c)
+PY
+)
 
             lower_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
 
             RULE_TYPE="domain"
+            # force ipcidr for obvious IP list filenames
             if echo "$lower_name" | grep -Eq '(ipcidr|cidr|(^|[^a-z])ip([^a-z]|$))'; then
               RULE_TYPE="ipcidr"
             else
-              # If >=90% lines are valid IP/CIDR -> ipcidr
+              # if >=90% lines are valid IP/CIDR => ipcidr
               if [ "$total" -gt 0 ] && [ $((ip_count * 100 / total)) -ge 90 ]; then
                 RULE_TYPE="ipcidr"
               fi
             fi
 
-            # Build final input for mihomo
             if [ "$RULE_TYPE" = "ipcidr" ]; then
-              # Keep only valid IPv4/CIDR; add /32 for plain IPv4
-              awk '
-                function is_octet(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 255) }
-                function is_mask(x){ return (x ~ /^[0-9]+$/ && x >= 0 && x <= 32) }
-                {
-                  n=split($0,a,/[.\/]/)
-                  ok=1
-                  if (n!=4 && n!=5) ok=0
-                  else {
-                    for(i=1;i<=4;i++) if(!is_octet(a[i])) ok=0
-                    if(n==5 && !is_mask(a[5])) ok=0
-                  }
-                  if(ok){
-                    if(n==4) print $0"/32";
-                    else print $0;
-                  }
-                }
-              ' "$norm_input" > "$mrs_input"
+              # Keep only valid IP/CIDR lines.
+              # Add /32 for plain IPv4 and /128 for plain IPv6.
+              python3 - "$norm_input" "$mrs_input" <<'PY'
+import ipaddress, sys
+src, dst = sys.argv[1], sys.argv[2]
+out = []
+with open(src, "r", encoding="utf-8") as f:
+    for line in f:
+        s = line.strip()
+        if not s:
+            continue
+        try:
+            if "/" in s:
+                ipaddress.ip_network(s, strict=False)
+                out.append(s)
+            else:
+                ip = ipaddress.ip_address(s)
+                out.append(f"{s}/32" if ip.version == 4 else f"{s}/128")
+        except Exception:
+            # skip non-IP lines in ipcidr mode
+            pass
+
+with open(dst, "w", encoding="utf-8") as f:
+    for x in out:
+        f.write(x + "\n")
+PY
             else
               cp "$norm_input" "$mrs_input"
             fi
@@ -172,8 +169,13 @@ jobs:
               exit 1
             fi
 
-            [ -f "${base_name}.mrs" ] || { echo "Error: ${base_name}.mrs not created"; rm -f "$raw_input" "$norm_input" "$mrs_input"; exit 1; }
+            [ -f "${base_name}.mrs" ] || {
+              echo "Error: ${base_name}.mrs not created"
+              rm -f "$raw_input" "$norm_input" "$mrs_input"
+              exit 1
+            }
 
+            # Guardrail against suspicious tiny output for ipcidr
             if [ "$RULE_TYPE" = "ipcidr" ]; then
               size=$(wc -c < "${base_name}.mrs")
               if [ "$size" -lt 100 ]; then
@@ -199,6 +201,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto-convert TXT to MRS (robust domain/ipcidr detection)"
+            git commit -m "Auto-convert TXT to MRS (IPv4/IPv6 ipcidr + domain)"
             git push
           fi
