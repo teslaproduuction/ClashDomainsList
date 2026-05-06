@@ -1145,6 +1145,7 @@ payload:
   - '+.view.learn.ads.snapchat.com'
   - '+.w.snapchat.com'
   - '+.watch.facebook.com'
+  - '+.wbagora.com'
   - '+.wbgames.com'
   - '+.web.facebook.com'
   - '+.web.snapchat.com'
@@ -1238,4 +1239,3 @@ payload:
   - 'www.tiktokw.eu'
   - 'www.twitter.com'
   - 'www.x.com'
-  - '+.wbagora.com'
