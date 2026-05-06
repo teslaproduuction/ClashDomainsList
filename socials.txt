@@ -1238,3 +1238,4 @@ payload:
   - 'www.tiktokw.eu'
   - 'www.twitter.com'
   - 'www.x.com'
+  - '+.wbagora.com'
