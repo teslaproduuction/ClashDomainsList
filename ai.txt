@@ -40,7 +40,7 @@ payload:
   - '+.copilot.microsoft.com'
   - '+.debate-game.openai.com'
   - '+.discuss.openai.com'
-  - '+.files.oaiusercontent.com'
+  - '+.oaiusercontent.com'
   - '+.openai.com'
   - '+.openaiapi-site.azureedge.net'
   - '+.openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net'
