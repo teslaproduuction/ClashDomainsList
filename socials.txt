@@ -1135,6 +1135,7 @@ payload:
   - '+.vcs-ru.tiktokv.com'
   - '+.vcs16-normal-ie.tiktokv.eu'
   - '+.verify-sg.tiktok.com'
+  - '+.vgen.co'
   - '+.video-frt3-1.xx.fbcdn.net'
   - '+.video-frt3-2.xx.fbcdn.net'
   - '+.video-frx5-1.xx.fbcdn.net'
