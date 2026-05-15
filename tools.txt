@@ -285,6 +285,7 @@ payload:
   - '+.help.sentry.io'
   - '+.help.trainingpeaks.com'
   - '+.hiring.naukri.com'
+  - '+.hltv.org'
   - '+.hook.eu1.make.com'
   - '+.hook.eu2.make.com'
   - '+.hook.us1.make.com'
