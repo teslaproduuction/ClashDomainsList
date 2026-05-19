@@ -1580,3 +1580,6 @@ payload:
   - 'www.whoop.com'
   - 'www.zapier-deployment.com'
   - 'www.zapier.com'
+  - 'www.files.nexus-cdn.com'
+  - 'www.nexus-cdn.com'
+  - 'www.nexusmods.com'
