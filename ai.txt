@@ -99,6 +99,7 @@ payload:
   - 'www.deepl.com'
 
   # Google AI / Gemini
+  - '+..withgoogle.com'
   - '+.ai.google.dev'
   - '+.ai.studio'
   - '+.aistudio.google.com'
@@ -127,7 +128,6 @@ payload:
   - '+.servd-anthropic-website.b-cdn.net'
   - '+.subscriptionsfirstparty-pa.googleapis.com'
   - '+.webchannel-alkalimakersuite-pa.clients6.google.com'
-  - '+..withgoogle.com'
 
   # Other AI Services
   - '+.cerebras.ai'
