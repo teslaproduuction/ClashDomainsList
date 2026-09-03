@@ -1,0 +1,31 @@
+payload:
+  # Netflix
+  - '+.netflix.com'
+  - '+.netflix.net'
+  - '+.netflixgames.com'
+  - '+.netflixinvestor.com'
+  - '+.netflixstudios.com'
+  - '+.netflixtechblog.com'
+
+  # Netflix CDN / Open Connect
+  - '+.nflxext.com'
+  - '+.nflximg.com'
+  - '+.nflximg.net'
+  - '+.nflxsearch.net'
+  - '+.nflxso.net'
+  - '+.nflxvideo.net'
+
+  # Netflix speed test
+  - '+.fast.com'
+
+  # Netflix DNS unblocker detection
+  - '+.netflixdnstest1.com'
+  - '+.netflixdnstest10.com'
+  - '+.netflixdnstest2.com'
+  - '+.netflixdnstest3.com'
+  - '+.netflixdnstest4.com'
+  - '+.netflixdnstest5.com'
+  - '+.netflixdnstest6.com'
+  - '+.netflixdnstest7.com'
+  - '+.netflixdnstest8.com'
+  - '+.netflixdnstest9.com'

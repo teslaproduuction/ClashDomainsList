@@ -28,6 +28,7 @@ A collection of domain lists for Clash and compatible proxy clients. Convenient 
 | <img src="ai.svg" width="200" alt="AI"> **AI** | AI services (ChatGPT, Claude, Midjourney, etc.) | ~50 | [ai.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/ai.txt) |
 | <img src="discord.svg" width="200" alt="Discord"> **Discord** | Discord and related services | ~3000 | [discord.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/discord.txt) |
 | <img src="music.svg" width="200" alt="Music"> **Music** | Music streaming services | ~200 | [music.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt) |
+| <img src="netflix.svg" width="200" alt="Netflix"> **Netflix** | Netflix and related CDN services | ~23 | [netflix.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/netflix.txt) |
 | <img src="porno.svg" width="200" alt="Porno"> **Porno** | Adult content | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
 | <img src="socials.svg" width="200" alt="Socials"> **Socials** | Social networks (Facebook, Instagram, Twitter, etc.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Online tools and services | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
@@ -105,6 +106,13 @@ rule-providers:
     path: ./ruleset/music.yaml
     interval: 86400
 
+  netflix:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/netflix.txt"
+    path: ./ruleset/netflix.yaml
+    interval: 86400
+
   telegram:
     type: http
     behavior: domain
@@ -153,6 +161,9 @@ rules:
 
   # Tools through proxy
   - RULE-SET,tools,PROXY
+
+  # Netflix through proxy
+  - RULE-SET,netflix,PROXY
 
   # Telegram through proxy
   - RULE-SET,telegram,PROXY
@@ -423,6 +434,8 @@ ClashDomainsList/
 ├── discord.svg
 ├── music.txt          # Music services
 ├── music.svg
+├── netflix.txt        # Netflix
+├── netflix.svg
 ├── porno.txt          # Adult content
 ├── porno.svg
 ├── socials.txt        # Social networks

@@ -28,6 +28,7 @@
 | <img src="ai.svg" width="200" alt="AI"> **AI** | AI сервисы (ChatGPT, Claude, Midjourney и др.) | ~50 | [ai.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/ai.txt) |
 | <img src="discord.svg" width="200" alt="Discord"> **Discord** | Discord и связанные сервисы | ~3000 | [discord.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/discord.txt) |
 | <img src="music.svg" width="200" alt="Music"> **Music** | Музыкальные стриминговые сервисы | ~200 | [music.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/music.txt) |
+| <img src="netflix.svg" width="200" alt="Netflix"> **Netflix** | Netflix и связанные CDN сервисы | ~23 | [netflix.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/netflix.txt) |
 | <img src="porno.svg" width="200" alt="Porno"> **Porno** | Контент для взрослых | ~100 | [porno.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/porno.txt) |
 | <img src="socials.svg" width="200" alt="Socials"> **Socials** | Социальные сети (Facebook, Instagram, Twitter и др.) | ~1000 | [socials.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/socials.txt) |
 | <img src="tools.svg" width="200" alt="Tools"> **Tools** | Онлайн инструменты и сервисы | ~1000 | [tools.txt](https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/tools.txt) |
@@ -105,6 +106,13 @@ rule-providers:
     path: ./ruleset/music.yaml
     interval: 86400
 
+  netflix:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/teslaproduuction/ClashDomainsList/main/netflix.txt"
+    path: ./ruleset/netflix.yaml
+    interval: 86400
+
   telegram:
     type: http
     behavior: domain
@@ -153,6 +161,9 @@ rules:
 
   # Инструменты через прокси
   - RULE-SET,tools,PROXY
+
+  # Netflix через прокси
+  - RULE-SET,netflix,PROXY
 
   # Telegram через прокси
   - RULE-SET,telegram,PROXY
@@ -422,6 +433,8 @@ ClashDomainsList/
 ├── discord.svg
 ├── music.txt          # Музыкальные сервисы
 ├── music.svg
+├── netflix.txt        # Netflix
+├── netflix.svg
 ├── porno.txt          # Контент для взрослых
 ├── porno.svg
 ├── socials.txt        # Социальные сети
