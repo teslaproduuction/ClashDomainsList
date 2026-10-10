@@ -167,6 +167,8 @@ payload:
   - '+.youmind.ai'
   - '+.youmind.com'
   - '+.youmind.site'
+  - '+.factory.ai'
+  - '+.factory.com'
 
   # Support / Infra
   - '+.chatgpt.livekit.cloud'
