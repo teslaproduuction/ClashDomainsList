@@ -1,4 +1,7 @@
 payload:
+  - '+.workos.com'
+  - '+.stripe.com'
+  - '+.ipapi.co'
   - '+.000-255.sentry.io'
   - '+.0011.sentry.io'
   - '+.010-011.sentry.io'
