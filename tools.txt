@@ -1,6 +1,4 @@
 payload:
-  - '+.ptc.com'
-  - '+.onshape.com'
   - '+.000-255.sentry.io'
   - '+.0011.sentry.io'
   - '+.010-011.sentry.io'
@@ -1247,6 +1245,7 @@ payload:
   - '+.omt.garmin.com'
   - '+.onboarding-1lynzuqa8.vercel.zapier-deployment.com'
   - '+.onlinetest.nc.naukri.com'
+  - '+.onshape.com'
   - '+.oohmedia.sentry.io'
   - '+.op.fmhy.net'
   - '+.open.sentry.io'
@@ -1302,6 +1301,7 @@ payload:
   - '+.proxydbtest.proxyline.net'
   - '+.proxyline.net'
   - '+.pt.naukri.com'
+  - '+.ptc.com'
   - '+.pulse.naukri.com'
   - '+.quoteboard.sentry.dev'
   - '+.r.miro.com'
