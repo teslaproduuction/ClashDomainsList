@@ -171,8 +171,10 @@ payload:
   - '+.youmind.site'
 
   # Support / Infra
+  - '+.authkit.app'
   - '+.chatgpt.livekit.cloud'
   - '+.coderabbit.gallery.vsassets.io'
   - '+.gateway.ai.cloudflare.com'
   - '+.host.livekit.cloud'
   - '+.turn.livekit.cloud'
+  - '+.workos.com'
