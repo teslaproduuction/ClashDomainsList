@@ -160,6 +160,8 @@ payload:
   - '+.mistral.ai'
   - '+.openart.ai'
   - '+.openrouter.ai'
+  - '+.openrouter.com'
+  - '+.openrouter.dev'
   - '+.perplexity.ai'
   - '+.perplexity.com'
   - '+.poe.com'
@@ -173,6 +175,7 @@ payload:
   # Support / Infra
   - '+.authkit.app'
   - '+.chatgpt.livekit.cloud'
+  - '+.clerk.com'
   - '+.coderabbit.gallery.vsassets.io'
   - '+.gateway.ai.cloudflare.com'
   - '+.host.livekit.cloud'
