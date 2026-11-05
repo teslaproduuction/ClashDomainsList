@@ -1,5 +1,9 @@
 payload:
   - '+.000-255.sentry.io'
+  - '+.autodesk.com'
+  - '+.autodesk.ru'
+  - '+.autodesk.by'
+  - '+.autodesk360.com'
   - '+.0011.sentry.io'
   - '+.010-011.sentry.io'
   - '+.013114.sentry.io'
@@ -683,7 +687,7 @@ payload:
   - '+.notepad-plus-plus.org'
   - '+.notifications-overlay.svc.miro.com'
   - '+.notifications.naukri.com'
-  - '+.notion-emojis.s3-us-west-2.amazonaws.com'
+  - '+.amazonaws.com'
   - '+.notion-media.com'
   - '+.notion.ai'
   - '+.notion.com'
