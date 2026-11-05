@@ -1,6 +1,5 @@
 payload:
   - '+.000-255.sentry.io'
-  - '+.cloudfront.net'
   - '+.0011.sentry.io'
   - '+.010-011.sentry.io'
   - '+.013114.sentry.io'
@@ -151,6 +150,7 @@ payload:
   - '+.chatclient.naukri.com'
   - '+.chunk-composing.canva.com'
   - '+.clark-associates-zq.sentry.io'
+  - '+.cloudfront.net'
   - '+.cm.naukri.com'
   - '+.codiplay-se.sentry.io'
   - '+.communication.naukri.com'
