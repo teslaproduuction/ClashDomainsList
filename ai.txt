@@ -3,6 +3,7 @@ payload:
   - '+.a-api.anthropic.com'
   - '+.a-cdn.anthropic.com'
   - '+.anthropic.com'
+  - 'api.ai.warps.app'
   - '+.api.anthropic.com'
   - '+.api.claude.ai'
   - '+.api.console.anthropic.com'
